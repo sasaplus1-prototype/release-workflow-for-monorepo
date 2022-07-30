@@ -11,5 +11,10 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://npm.pkg.github.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sasaplus1-prototype/release-workflow-for-monorepo.git",
+    "directory": "packages/node"
   }
 }
