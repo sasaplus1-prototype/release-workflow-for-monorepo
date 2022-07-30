@@ -1,0 +1,75 @@
+name: publish modules
+
+on:
+  push:
+    paths:
+      - '**/package.json'
+
+jobs:
+  find-modules:
+    name: find modules
+    runs-on: ubuntu-latest
+    outputs:
+      modules: ${{ steps.result.outputs.modules }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            const globber = await glob.create('packages/**/package.json');
+            const packages = await globber.glob();
+
+            const modules = packages
+              .map(
+                package => ({
+                  meta: require(package),
+                  path: package
+                })
+              )
+              .filter(
+                package => await exec.exec(
+                  `git tag --list | grep -E '^${package.meta.name}@${package.meta.version}$'`
+                ) !== 0
+              )
+              .map(
+                package => path.dirname(package.path)
+              );
+
+            await fs.writeFile('./modules.json', JSON.stringify(modules), 'utf-8');
+      - run: cat modules.json
+      - run: echo "::set-output name=modules::$(cat modules.json)"
+        id: result
+  publish-module:
+    name: publish module
+    runs-on: ubuntu-latest
+    needs:
+      - find-modules
+    strategy:
+      fail-fast: false
+      matrix:
+        module: ${{ fromJSON(needs.find-modules.outputs.modules) }}
+    defaults:
+      run:
+        working-directory: ${{ matrix.module }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: npm
+      - run: |
+          cat <<'EOB' > .npmrc
+          @sasaplus1-prototype:https://npm.pkg.github.com/
+          '//npm.pkg.github.com/:_authToken=${NPM_TOKEN}'
+          EOB
+      - run: npm publish
+        env:
+          NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
