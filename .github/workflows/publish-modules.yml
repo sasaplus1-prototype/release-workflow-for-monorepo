@@ -18,7 +18,6 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: npm
       - run: npm pkg get '' --workspaces | jq -c keys
       - run: echo "::set-output name=modules::$(cat modules.json)"
         id: result
@@ -36,7 +35,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: npm
+        # cache: npm
       - run: |
           cat <<'EOB' > .npmrc
           @sasaplus1-prototype:https://npm.pkg.github.com/
