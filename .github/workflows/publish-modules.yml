@@ -25,7 +25,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      - run: npm pkg get '' --workspaces | jq -c keys
+      - run: npm pkg get '' --workspaces | jq -c keys | tee modules.json
       - run: echo "::set-output name=modules::$(cat modules.json)"
         id: result
   publish-module:
