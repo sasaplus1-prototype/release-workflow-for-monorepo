@@ -33,7 +33,7 @@ jobs:
                 })
               )
               .filter(
-                package => await exec.exec(
+                async package => await exec.exec(
                   `git tag --list | grep -E '^${package.meta.name}@${package.meta.version}$'`
                 ) !== 0
               )
