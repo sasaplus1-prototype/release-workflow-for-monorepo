@@ -54,7 +54,7 @@ jobs:
       - run: >
           npm pkg get version --workspace '${{ matrix.module }}' |
           jq -r 'to_entries | .[].value' |
-          version.txt
+          tee version.txt
       - run: echo "::set-output name=value::$(cat version.txt)"
         id: version
       - run: gh release create '${{ matrix.module }}@${{ steps.version.outputs.value }}' --generate-notes
