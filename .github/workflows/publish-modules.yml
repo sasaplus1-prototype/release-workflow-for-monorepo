@@ -2,14 +2,11 @@ name: publish modules
 
 on:
   push:
+    branches:
+      - main
     paths:
       - '**/package.json'
   workflow_dispatch:
-    inputs:
-      ref:
-        default: main
-        description: ref
-        required: true
 
 jobs:
   list-modules:
@@ -20,8 +17,6 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.inputs.ref }}
       - uses: actions/setup-node@v3
         with:
           node-version: 16
@@ -33,17 +28,15 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - list-modules
+    permissions:
+      contents: read
+      packages: write
     strategy:
       fail-fast: false
       matrix:
         module: ${{ fromJSON(needs.list-modules.outputs.modules) }}
-    permissions:
-      contents: read
-      packages: write
     steps:
       - uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.inputs.ref }}
       - uses: actions/setup-node@v3
         with:
           node-version: 16
@@ -56,3 +49,15 @@ jobs:
       - run: npm publish --workspace ${{ matrix.module }}
         env:
           NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        id: publish
+        continue-on-error: true
+      - run: >
+          npm pkg get version --workspace '${{ matrix.module }}' |
+          jq -r 'to_entries | .[].value' |
+          version.txt
+      - run: echo "::set-output name=value::$(cat version.txt)"
+        id: version
+      - run: gh release create '${{ matrix.module }}@${{ steps.version.outputs.value }}' --generate-notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: steps.publish.outcome == 'success'
