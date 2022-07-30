@@ -4,14 +4,13 @@ changelog:
       - ignore-for-release
     authors:
       - renovate
-
-categories:
-  - title: Breaking Changes
-    labels:
-      - 'breaking change'
-  - title: New Features
-    labels:
-      - 'new feature'
-  - title: Other changes
-    labels:
-      - '*'
+  categories:
+    - title: Breaking Changes
+      labels:
+        - 'breaking change'
+    - title: New Features
+      labels:
+        - 'new feature'
+    - title: Other changes
+      labels:
+        - '*'
