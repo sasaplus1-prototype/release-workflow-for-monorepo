@@ -1,7 +1,7 @@
 {
   "name": "@sasaplus1-prototype/test-module-a",
   "description": "test module a",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "sasa+1 <sasaplus1@gmail.com>",
   "files": [
     "./index.js"
@@ -11,10 +11,5 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://npm.pkg.github.com"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/sasaplus1-prototype/release-workflow-for-monorepo.git",
-    "directory": "packages/test-module-a"
   }
 }
