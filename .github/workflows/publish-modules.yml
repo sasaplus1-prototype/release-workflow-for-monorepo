@@ -64,8 +64,7 @@ jobs:
           else
             echo "::set-output name=range::${{ matrix.module }}@${{ steps.previous-version.outputs.value }}..HEAD"
           fi
-      - id:
-        run: >
+      - run: >
           npm pkg get repository.directory --workspace '${{ matrix.module }}' |
           jq -r 'to_entries | .[].value' |
           tee dir.txt
