@@ -50,6 +50,8 @@ jobs:
           EOB
       - id: previous-version
         run: echo "::set-output name=value::$(npm info '${{ matrix.module }}' version)"
+        env:
+          NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true
       - run: npm publish --workspace '${{ matrix.module }}'
         env:
