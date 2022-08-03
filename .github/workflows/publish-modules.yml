@@ -37,6 +37,8 @@ jobs:
         module: ${{ fromJSON(needs.list-modules.outputs.modules) }}
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v3
         with:
           node-version: 16
@@ -46,18 +48,36 @@ jobs:
           @sasaplus1-prototype:https://npm.pkg.github.com/
           //npm.pkg.github.com/:_authToken=${NPM_TOKEN}
           EOB
-      - run: npm publish --workspace ${{ matrix.module }}
+      - id: previous-version
+        run: echo "::set-output name=value::$(npm info '${{ matrix.module }}' version)"
+        continue-on-error: true
+      - run: npm publish --workspace '${{ matrix.module }}'
         env:
           NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         id: publish
         continue-on-error: true
+      - id: rev-range
+        run: |
+          if [ -z '${{ steps.previous-version.outputs.value }}' ]
+          then
+            echo "::set-output name=range::$(git rev-list --max-parents=0 HEAD)..HEAD"
+          else
+            echo "::set-output name=range::${{ matrix.module }}@${{ steps.previous-version.outputs.value }}..HEAD"
+          fi
+      - id:
+        run: >
+          npm pkg get repository.directory --workspace '${{ matrix.module }}' |
+          jq -r 'to_entries | .[].value' |
+          tee dir.txt
+      - run: >
+          git log --format='- %h @%an `%s`' '${{ steps.rev-range.outputs.range }}' -- "$(cat dir.txt)" | tee changelog.md
       - run: >
           npm pkg get version --workspace '${{ matrix.module }}' |
           jq -r 'to_entries | .[].value' |
           tee version.txt
-      - run: echo "::set-output name=value::$(cat version.txt)"
-        id: version
-      - run: gh release create '${{ matrix.module }}@${{ steps.version.outputs.value }}' --generate-notes
+      - id: version
+        run: echo "::set-output name=value::$(cat version.txt)"
+      - run: gh release create '${{ matrix.module }}@${{ steps.version.outputs.value }}' -F changelog.md
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: steps.publish.outcome == 'success'
