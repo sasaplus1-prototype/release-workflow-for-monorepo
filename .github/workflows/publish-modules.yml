@@ -44,13 +44,14 @@ jobs:
           node-version: 16
         # cache: npm
       - run: |
-          cat <<'EOB' > .npmrc
+          cat <<'EOB' >> ~/.npmrc
           @sasaplus1-prototype:https://npm.pkg.github.com/
           //npm.pkg.github.com/:_authToken=${NPM_TOKEN}
           EOB
+      - run: npm --version
       - run: |
           pwd
-          cat .npmrc
+          cat ~/.npmrc
           npm info ${{ matrix.module }} version | tee previous-version.txt
         env:
           NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
