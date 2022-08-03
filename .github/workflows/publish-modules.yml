@@ -49,14 +49,14 @@ jobs:
           //npm.pkg.github.com/:_authToken=${NPM_TOKEN}
           EOB
       - run: >
-          npm info '${{ matrix.module }}' version |
+          npm info ${{ matrix.module }} version |
           tee previous-version.txt
         env:
           NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true
       - id: previous-version
         run: echo "::set-output name=value::$(cat previous-version.txt)"
-      - run: npm publish --workspace '${{ matrix.module }}'
+      - run: npm publish --workspace ${{ matrix.module }}
         env:
           NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         id: publish
@@ -70,13 +70,13 @@ jobs:
             echo "::set-output name=range::${{ matrix.module }}@${{ steps.previous-version.outputs.value }}..HEAD"
           fi
       - run: >
-          npm pkg get repository.directory --workspace '${{ matrix.module }}' |
+          npm pkg get repository.directory --workspace ${{ matrix.module }} |
           jq -r 'to_entries | .[].value' |
           tee dir.txt
       - run: >
           git log --format='- %h @%an `%s`' '${{ steps.rev-range.outputs.range }}' -- "$(cat dir.txt)" | tee changelog.md
       - run: >
-          npm pkg get version --workspace '${{ matrix.module }}' |
+          npm pkg get version --workspace ${{ matrix.module }} |
           jq -r 'to_entries | .[].value' |
           tee version.txt
       - id: version
