@@ -7,6 +7,6 @@ module.exports = {
     console.log('Hello, World!');
   },
   new() {
-    console.log('New World');
+    console.log('New World!');
   }
 }

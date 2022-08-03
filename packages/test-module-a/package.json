@@ -1,7 +1,7 @@
 {
   "name": "@sasaplus1-prototype/test-module-a",
   "description": "test module a",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "author": "sasa+1 <sasaplus1@gmail.com>",
   "files": [
     "./index.js"
