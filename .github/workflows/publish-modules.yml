@@ -48,9 +48,10 @@ jobs:
           @sasaplus1-prototype:https://npm.pkg.github.com/
           //npm.pkg.github.com/:_authToken=${NPM_TOKEN}
           EOB
-      - run: >
-          npm info ${{ matrix.module }} version |
-          tee previous-version.txt
+      - run: |
+          pwd
+          cat .npmrc
+          npm info ${{ matrix.module }} version | tee previous-version.txt
         env:
           NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true
