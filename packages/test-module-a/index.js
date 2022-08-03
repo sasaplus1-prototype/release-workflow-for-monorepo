@@ -5,5 +5,8 @@ module.exports = {
   },
   world() {
     console.log('Hello, World!');
+  },
+  new() {
+    console.log('New World');
   }
 }
